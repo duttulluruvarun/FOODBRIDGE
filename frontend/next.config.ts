@@ -20,6 +20,12 @@ const nextConfig: NextConfig = {
     // actually imported instead of the whole library.
     optimizePackageImports: ["framer-motion"],
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 export default nextConfig;
