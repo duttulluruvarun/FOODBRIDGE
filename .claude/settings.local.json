@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(npx next *)",
+      "PowerShell($p = Get-Process -Id 51180 -ErrorAction SilentlyContinue; if \\($p\\) { \"PID 51180 ALIVE: $\\($p.ProcessName\\)\" } else { \"PID 51180 NOT RUNNING \\(stale lock\\)\" }; \"--- listeners on 3000/3100 ---\"; Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | Where-Object { $_.LocalPort -in 3000,3100 } | Select-Object LocalAddress,LocalPort,OwningProcess | Format-Table -AutoSize | Out-String)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/dashboard)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/dashboard/matches)",
+      "Bash(jobs -l)",
+      "Bash(curl *)",
+      "Bash(node -e ' *)",
+      "Bash(MSYS_NO_PATHCONV=1 curl *)",
+      "Bash(sed 's|\\\\\\\\\\\\\\\\|/|g')",
+      "Bash(sed 's|C:.Users.Lingesh.Desktop.FoodBridge.frontend.src|REL|' /tmp/outer_frontend.txt)"
+    ]
+  }
+}

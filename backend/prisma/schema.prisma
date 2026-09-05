@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String
+  name     String
+  role     String @default("donor") // "donor", "ngo", "admin", "volunteer"
+  
+  // Security
+  securityQuestion String?
+  securityAnswer   String?
+
+  // Specific profile fields
+  address       String?
+  capacity      Int? // For NGOs: Max capacity to receive
+  contactNumber String?
+
+  // Coordinates
+  latitude  Float?
+  longitude Float?
+
+  // Gamification & Reputation
+  rating Float   @default(5.0)
+  badges String?
+  points Int     @default(0)
+
+  // Stats
+  completedDeliveries Int   @default(0)
+  totalDistance       Float @default(0)
+  acceptedRequests    Int   @default(0)
+
+  // Volunteer Specifics
+  currentLocation String?
+  vehicle         String?
+  availability    String  @default("offline") // offline, available, busy
+  currentTask     String?
+
+  // NGO specifics
+  organizationType String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  donations        Donation[]
+  ngoMatches       Match[]        @relation("MatchNgo")
+  volunteerMatches Match[]        @relation("MatchVolunteer")
+  requests         Request[]
+  notifications    Notification[]
+}
+
+model Donation {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  weightKg    Float
+  servings    Int
+  status      String   @default("available") // "available", "matched", "picked_up", "expired", "completed"
+  expiryTime  DateTime
+
+  foodType           String? // veg/nonVeg
+  temperature        String? // hot, cold, frozen, room
+  image              String? // URL to image
+  qualityScore       Float? // AI predicted score
+  predictedShelfLife Int? // in hours
+  co2Saved           Float? // calculated CO2 saved in kg
+  category           String? // e.g. "cooked", "raw", "packaged"
+  isEmergency        Boolean @default(false)
+  pickupLatitude     Float?
+  pickupLongitude    Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  donorId     String
+  donor       User         @relation(fields: [donorId], references: [id])
+  matches     Match[]
+  allocations Allocation[]
+}
+
+model Request {
+  id             String   @id @default(cuid())
+  title          String
+  description    String?
+  neededBy       DateTime
+  status         String   @default("open") // "open", "fulfilled", "cancelled"
+  priority       String   @default("medium") // "low", "medium", "high"
+  servingsNeeded Int      @default(50) // exact quantity this request must be satisfied with
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  ngoId       String
+  ngo         User         @relation(fields: [ngoId], references: [id])
+  allocations Allocation[]
+}
+
+model Match {
+  id         String @id @default(cuid())
+  status     String @default("in_progress") // "in_progress", "picked_up", "completed"
+  distance   Float?
+  travelTime Int?
+  matchScore Float?
+
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  donationId String
+  donation   Donation @relation(fields: [donationId], references: [id])
+
+  ngoId String
+  ngo   User   @relation(name: "MatchNgo", fields: [ngoId], references: [id])
+
+  assignedVolunteerId String?
+  assignedVolunteer   User?   @relation(name: "MatchVolunteer", fields: [assignedVolunteerId], references: [id])
+}
+
+// Records how a single donation's servings were split across multiple
+// requests (e.g. by priority) via the "Split & Allocate" flow.
+model Allocation {
+  id        String   @id @default(cuid())
+  servings  Int
+  createdAt DateTime @default(now())
+
+  // Relations
+  donationId String
+  donation   Donation @relation(fields: [donationId], references: [id])
+
+  requestId String
+  request   Request  @relation(fields: [requestId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}

@@ -1,0 +1,8 @@
+{
+  "name": "foodbridge",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
+}
