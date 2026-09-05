@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from 'backend';
+import { prisma } from '@/lib/prisma';
 
 export async function getAnalyticsData() {
   try {

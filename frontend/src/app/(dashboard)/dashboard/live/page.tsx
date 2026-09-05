@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { getLiveDashboardMetrics } from "@/lib/services/analytics";
 import { getTopDonors } from "@/app/actions/users";
 import { forecastTomorrow } from "@/lib/ai/forecast";
